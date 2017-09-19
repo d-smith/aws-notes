@@ -1,0 +1,21 @@
+In a region near you launch two instances with the following 
+user data script:
+
+#!/bin/bash
+yum update -y
+yum install httpd24 -y
+service httpd start
+chkconfig httpd on
+echo "<html><body><h1>Hello Cloud Gurus, this is X</h1></body></html>" > /var/www/html/index.html
+
+Customize the message so you can tell the different server's output from
+each other.
+
+In a far region do the above set up with a single instance.
+
+Then try out the route 53 routing policies:
+* simple
+* weighted
+* failover
+* latency (truely far region helps)
+* geolocation
