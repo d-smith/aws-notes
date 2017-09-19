@@ -13,6 +13,8 @@ each other.
 
 In a far region do the above set up with a single instance.
 
+In each region put the instances behind a load balancer by creating a classic load balancer and adding the instances directly to it (skipping autoscale group to minimize the set up for this demo). The load balancer endpoints are needed to use ALIAS records for the below policies.
+
 Then try out the route 53 routing policies:
 * simple
 * weighted
