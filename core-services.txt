@@ -1,0 +1,34 @@
+For the solutions architect profession exam, the following are
+considered to be core services:
+
+* KMS
+* import/export
+* sts
+* cloud formation
+* cloud hsm
+* cloud search
+* cloud watch
+* data pipeline
+* direct connect
+* dynamodb
+* ebs
+* ec2
+* elb
+* emr
+* elastic cache
+* elastic beanstalk
+* elastic transcoder
+* glacier
+* iam
+* kinesis
+* opsworkds
+* rds
+* redshift
+* route 53
+* s3
+* ses
+* sns
+* sqs
+* swf
+* storage gateway
+* vpc
