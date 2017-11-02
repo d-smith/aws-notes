@@ -1,0 +1,9 @@
+# List users
+
+aws iam list-users --query 'Users[*]'.{UserName:UserName} --output text
+
+# create a new user
+
+aws iam create-user --user-name newuser
+
+# create credentials for them
