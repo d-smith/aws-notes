@@ -1,0 +1,74 @@
+Most of this based on https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_AWSCLI_Fargate.html
+
+Also this article points out the stuff you need for fargate:
+
+https://aws.amazon.com/blogs/compute/migrating-your-amazon-ecs-containers-to-aws-fargate/
+
+
+And... Task networking for containers:
+
+https://aws.amazon.com/about-aws/whats-new/2017/11/amazon-ecs-introduces-awsvpc-networking-mode-for-containers-to-support-full-networking-capabilities/
+
+And... load balancers
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/tutorial-application-load-balancer-cli.html
+
+
+
+Create a cluster:
+
+aws ecs create-cluster --cluster-name c1
+
+Creating the cluster also ensures the service-linked role needed by ecs has been
+created. See here for more details: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using-service-linked-roles.html
+
+aws logs create-log-group --log-group-name /ecs/nginx
+
+aws ecs register-task-definition --cli-input-json file://$PWD/nginx.json
+
+
+aws ecs create-service --cluster c1 \
+--service-name fargate-service \
+--task-definition fargate-nginx:1 \
+--desired-count 2 \
+--launch-type "FARGATE" \
+--load-balancers targetGroupArn=xxx,containerName=nginx,containerPort=80 \
+--network-configuration "awsvpcConfiguration={subnets=[subnet-11e4d475, subnet-bcd899e1],securityGroups=[sg-52007c25]}"
+
+aws ecs describe-services --cluster c1 --services fargate-service
+
+
+aws ecs update-service --cluster c1 \
+--service fargate-service \
+--desired-count 0 \
+--task-definition fargate-nginx:3
+
+aws ecs delete-service --cluster c1 --service fargate-service
+
+
+aws elbv2 create-load-balancer --name lb1  \
+--subnets subnet-bcd899e1 subnet-11e4d475 --security-groups sg-52007c25
+
+aws elbv2 create-target-group --name tg1 --protocol HTTP --port 80 \
+--vpc-id vpc-169e676d --target-type ip
+
+aws elbv2 create-listener --load-balancer-arn loadbalancer-arn \
+--protocol HTTP --port 80  \
+--default-actions Type=forward,TargetGroupArn=targetgroup-arn
+
+To get this working:
+
+1. VPC - public, private subnets
+    public subnets: load balancer
+    private subnets: service
+
+2. Create the log group for the task
+
+3. Security groups - web traffic port 80 ingress to set on load balancer, 
+ephemeral port access = load balancer to service
+
+4. load balancer, target group (ip target), listener
+
+Ways to fail
+- reference a log group in the task that does not exists
+- containers with no public address in a public subnet
